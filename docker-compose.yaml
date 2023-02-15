@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  mongo_db:
+      image: mongo:latest
+      restart: always
+      networks:
+        - mynet
+      volumes:
+        - mongo:/data/db
+  reactfront:
+    # image: contacts-front:v1
+    build: ../ReactJS/router-demo/
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+    restart: always
+    networks:
+      - mynet
+
+  api:
+    # image: contacts-back:v1
+    build: ../NodeJS/contacts-demo/
+    restart: always
+    ports:
+      - "3001:3001"
+    networks:
+      - mynet
+    depends_on:
+      - mongo_db
+    environment:
+      mongoUri: mongodb://mongo_db:27017
+    volumes:
+      - backend:/usr/src/app/uploads
+
+networks:
+  mynet:
+    driver: bridge  
+
+volumes:
+  mongo: {}
+  backend: {}
